@@ -2,10 +2,12 @@ package com.agcodes.spring_data_jpa.student;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -55,6 +57,12 @@ public class Student {
       nullable = false
   )
   private int age;
+
+  // Bidirectional relationship
+@OneToOne(mappedBy = "student", // "student": refers to the student object found in studentIdCard class
+    orphanRemoval = true) //  The StudentIdCard will be deleted automatically
+  private StudentIdCard studentIdCard;
+
   public Student() {
 
   }
@@ -110,6 +118,9 @@ public class Student {
     this.age = age;
   }
 
+  public StudentIdCard getStudentIdCard(){
+    return this.studentIdCard;
+  }
   @Override
   public String toString() {
     return "Student{" +
