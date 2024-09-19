@@ -5,6 +5,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -41,9 +42,12 @@ public class StudentIdCard {
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(
-    name = "student_id",            // in this table
-    referencedColumnName = "id"     // in the student table
-)
+    name = "student_id",             // in this table
+    referencedColumnName = "id",     // in the student table
+      foreignKey = @ForeignKey(      // Renaming foreign key
+          name = "student_id_fk"
+      )
+ )
   private Student student;
   @Column(
       name = "card_number",

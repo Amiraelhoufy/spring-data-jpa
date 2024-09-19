@@ -1,19 +1,19 @@
-package com.agcodes.spring_data_jpa;
+package com.agcodes.spring_data_jpa.util;
 
+import com.agcodes.spring_data_jpa.student.Book;
 import com.agcodes.spring_data_jpa.student.Student;
 import com.agcodes.spring_data_jpa.student.StudentIdCard;
 import com.agcodes.spring_data_jpa.student.StudentIdCardRepository;
 import com.agcodes.spring_data_jpa.student.StudentRepository;
 import com.github.javafaker.Faker;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
-import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +27,7 @@ public class DataLoader {
   }
 
 
-  public void loadStudents(){
+  public void loadStudentsV1(){
 
     Student maria = new Student(
         "Maria",
@@ -88,7 +88,7 @@ public class DataLoader {
   // Section 2:
   // CRUD operations using JPARepository
   public void section2() {
-    loadStudents();
+    loadStudentsV1();
     getStudentsCount();
 
     printStudentById(2L);
@@ -197,10 +197,10 @@ public class DataLoader {
   }
 
   // loadStudentIdCards | Relationships [1-1]
-  public void loadStudentIdCards(){
+  public void loadStudentsV2(){
 
     Faker faker = new Faker();
-    List<StudentIdCard> studentIdCardList = new ArrayList<>();
+    List<Student> students = new ArrayList<>();
     for (int i=0; i<20 ;i++){
       String firstName = faker.name().firstName();
       String lastName = faker.name().lastName();
@@ -211,12 +211,33 @@ public class DataLoader {
           email,
           faker.number().numberBetween(17, 55)
       );
+
+      // Add books to student
+      student.addBook(new Book("Clean Code", LocalDateTime.now().minusDays(4)));
+      student.addBook(new Book("OOP", LocalDateTime.now()));
+      student.addBook(new Book("Spring Data JPA", LocalDateTime.now().minusYears(1)));
+
+      // Create and set the StudentIdCard
       String cardNumber = faker.numerify("###############");  // Generates a 15-digit card number
       StudentIdCard studentIdCard = new StudentIdCard(cardNumber, student);
-      studentIdCardList.add(studentIdCard);
+
+      // Set the card to the student
+      student.setStudentIdCard(studentIdCard);  // Bidirectional relationship
+
+      /*
+        Save studentIdCard before saving student manually
+        or
+        set OneToOne Relationship to {CascadeType.PERSIST,CascadeType.REMOVE}
+      */
+
+//      studentIdCardRepository.save(studentIdCard);
+
+
+      students.add(student);
     }
 
-    studentIdCardRepository.saveAll(studentIdCardList);
+    studentRepository.saveAll(students);
+
 
 //    sorting();
 //    pagingAndSorting();
@@ -226,10 +247,42 @@ public class DataLoader {
   // Relationships [1-1]
   public void removeOrphan(){
 //  Load data
-    loadStudentIdCards();
+    loadStudentsV2();
 
     studentRepository.deleteById(1L);
 
 
+  }
+
+  public void testingOneToManyBiDirectionalRelation(){
+
+    Faker faker = new Faker();
+
+    String firstName = faker.name().firstName();
+    String lastName = faker.name().lastName();
+    String email = String.format("%s.%s@gmail.edu", firstName, lastName);
+    Student student = new Student(
+        firstName,
+        lastName,
+        email,
+        faker.number().numberBetween(17, 55));
+
+    student.addBook(new Book("Clean Code", LocalDateTime.now().minusDays(4)));
+    student.addBook(new Book("OOP", LocalDateTime.now()));
+    student.addBook(new Book("Spring Data JPA", LocalDateTime.now().minusYears(1)));
+
+    StudentIdCard studentIdCard = new StudentIdCard("123456789", student);
+
+    studentRepository.save(student);
+
+    studentRepository.findById(1L)
+        .ifPresent(s -> {
+          System.out.println("fetch book lazy...");
+          List<Book> books = student.getBooks();
+          books.forEach(book -> {
+            System.out.println(
+                s.getFirstName() + " borrowed " + book.getBookName());
+          });
+        });
   }
 }

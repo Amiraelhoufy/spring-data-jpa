@@ -7,14 +7,17 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "Student")
 @Table(
-    name="Student",
+    name="student",
     uniqueConstraints = {
         @UniqueConstraint(name = "student_email_unique",columnNames = "email")
 })
@@ -60,8 +63,16 @@ public class Student {
 
   // Bidirectional relationship
 @OneToOne(mappedBy = "student", // "student": refers to the student object found in studentIdCard class
-    orphanRemoval = true) //  The StudentIdCard will be deleted automatically
+    orphanRemoval = true, //  The StudentIdCard will be deleted automatically
+    cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
   private StudentIdCard studentIdCard;
+
+@OneToMany(
+    mappedBy = "student",
+    orphanRemoval = true,
+    cascade = {CascadeType.PERSIST,CascadeType.REMOVE}
+)
+  private List<Book> books= new ArrayList<>();
 
   public Student() {
 
@@ -121,6 +132,31 @@ public class Student {
   public StudentIdCard getStudentIdCard(){
     return this.studentIdCard;
   }
+
+  public void addBook(Book book){
+    if(!this.books.contains(book)){
+      this.books.add(book);
+      book.setStudent(this); // keeping both ways in sync (Bidirectional Relationships)
+    }
+  }
+
+  public void removeBook(Book book){
+    if(this.books.contains(book)){
+      this.books.remove(book);
+      book.setStudent(null); // keeping both ways in sync (Bidirectional Relationships)
+    }
+  }
+
+  public void setStudentIdCard(StudentIdCard studentIdCard) {
+    this.studentIdCard = studentIdCard;
+  }
+
+  public List<Book> getBooks() {
+    return books;
+  }
+
+
+
   @Override
   public String toString() {
     return "Student{" +

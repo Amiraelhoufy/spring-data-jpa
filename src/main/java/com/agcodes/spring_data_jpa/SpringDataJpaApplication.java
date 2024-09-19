@@ -2,6 +2,7 @@ package com.agcodes.spring_data_jpa;
 
 import com.agcodes.spring_data_jpa.student.StudentIdCardRepository;
 import com.agcodes.spring_data_jpa.student.StudentRepository;
+import com.agcodes.spring_data_jpa.util.DataLoader;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,7 +32,12 @@ public class SpringDataJpaApplication {
 //			dataLoader.section4();
 
 
-			dataLoader.removeOrphan();
+//			dataLoader.removeOrphan();
+
+
+//			dataLoader.testingOneToManyBiDirectionalRelation();
+
+			dataLoader.loadStudentsV2();
 
 		};
 
