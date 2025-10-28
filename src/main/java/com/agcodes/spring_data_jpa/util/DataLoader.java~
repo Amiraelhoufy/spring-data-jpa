@@ -5,9 +5,9 @@ import com.agcodes.spring_data_jpa.model.Course;
 import com.agcodes.spring_data_jpa.model.Enrollment;
 import com.agcodes.spring_data_jpa.model.EnrollmentId;
 import com.agcodes.spring_data_jpa.model.Student;
-import com.agcodes.spring_data_jpa.model.StudentIdCard;
-import com.agcodes.spring_data_jpa.repository.StudentIdCardRepository;
-import com.agcodes.spring_data_jpa.repository.StudentRepository;
+import com.agcodes.spring_data_jpa.student.StudentIdCard;
+import com.agcodes.spring_data_jpa.student.StudentIdCardRepository;
+import com.agcodes.spring_data_jpa.student.StudentRepository;
 import com.github.javafaker.Faker;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class DataLoader {
   };
 
   public void deleteStudentById(long id){
-    System.out.println("Delete repository with id: " + id);
+    System.out.println("Delete student with id: " + id);
     studentRepository.deleteById(id);
 
   }
@@ -108,12 +108,12 @@ public class DataLoader {
   public void section3(){
 
     String email = "maria@gmail.edu";
-    System.out.println("delete repository with email: " + email);
+    System.out.println("delete student with email: " + email);
     studentRepository
         .findStudentByEmail(email)
         .ifPresentOrElse(
             student -> System.out.println(student),
-            ()->{System.out.println("Couldn't find any repository with this email: " + email);
+            ()->{System.out.println("Couldn't find any student with this email: " + email);
             });
 
 
@@ -140,7 +140,7 @@ public class DataLoader {
     studentRepository.findStudentsByFirstNameEqualsAndAgeIsGreaterThanEqual("Maria",18)
         .forEach(System.out::println);
 
-    System.out.println("Deleting repository with id: 1L");
+    System.out.println("Deleting student with id: 1L");
     System.out.println(studentRepository.deleteStudentById(1L));
 
   }
@@ -166,7 +166,7 @@ public class DataLoader {
     }
 
     studentRepository.saveAll(studentList);
-//    studentRepository.findAll().forEach(repository -> System.out.println(repository));
+//    studentRepository.findAll().forEach(student -> System.out.println(student));
 
 //    sorting();
 //    pagingAndSorting();
@@ -215,7 +215,7 @@ public class DataLoader {
           faker.number().numberBetween(17, 55)
       );
 
-      // Add books to repository
+      // Add books to student
       student.addBook(new Book("Clean Code", LocalDateTime.now().minusDays(4)));
       student.addBook(new Book("OOP", LocalDateTime.now()));
       student.addBook(new Book("Spring Data JPA", LocalDateTime.now().minusYears(1)));
@@ -224,7 +224,7 @@ public class DataLoader {
       String cardNumber = faker.numerify("###############");  // Generates a 15-digit card number
       StudentIdCard studentIdCard = new StudentIdCard(cardNumber, student);
 
-      // Set the card to the repository
+      // Set the card to the student
       student.setStudentIdCard(studentIdCard);  // Bidirectional relationship
 
 
@@ -235,11 +235,11 @@ public class DataLoader {
         student.addEnrollment(new Enrollment(new EnrollmentId(1L,1L),student,new Course("Computer Science","IT"),LocalDateTime.now()));
         student.addEnrollment(new Enrollment(new EnrollmentId(1L,2L),student,new Course("Spring Data JPA","IT"),LocalDateTime.now().minusDays(3)));
       }
-//      repository.addCourse(new Course("Computer Science","IT"));
-//      repository.addCourse(new Course("Spring Data JPA","IT"));
+//      student.addCourse(new Course("Computer Science","IT"));
+//      student.addCourse(new Course("Spring Data JPA","IT"));
 
       /*
-        Save studentIdCard before saving repository manually
+        Save studentIdCard before saving student manually
         or
         set OneToOne Relationship to {CascadeType.PERSIST,CascadeType.REMOVE}
       */

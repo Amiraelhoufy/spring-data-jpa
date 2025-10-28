@@ -1,8 +1,9 @@
-package com.agcodes.spring_data_jpa.student;
+package com.agcodes.spring_data_jpa.model;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-import com.agcodes.spring_data_jpa.student.Student;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +15,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "Book")
 @Table(name = "book")
 public class Book {
@@ -49,64 +58,29 @@ public class Book {
   )
   private LocalDateTime createdAt;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
   @JoinColumn(
-      name = "student_id",
-//      nullable = false,
-      referencedColumnName = "id",
+      name = "student_id",             // db column name in THIS table
+      referencedColumnName = "id",     // db column name in the Student table (foreign key points to)
       foreignKey = @ForeignKey(
-          name = "student_book_id_fk"
+          name = "student_book_id_fk"  // Renaming foreign key constraint
       )
   )
+  @JsonBackReference // 👈 Fix Jackson
+  @ToString.Exclude               // 👈 Fix Lombok
+  @EqualsAndHashCode.Exclude      // 👈 Fix Lombok
   private Student student;
-
-  public Book() {
-  }
 
   public Book(String bookName, LocalDateTime createdAt) {
     this.bookName = bookName;
     this.createdAt = createdAt;
   }
 
-  public long getId() {
-    return id;
-  }
-
   public Student getStudent() {
     return student;
   }
-
-  public String getBookName() {
-    return bookName;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setId(long id) {
-    this.id = id;
-  }
-
   public void setStudent(Student student) {
     this.student = student;
   }
 
-  public void setBookName(String bookName) {
-    this.bookName = bookName;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  @Override
-  public String toString() {
-    return "Book{" +
-        "id=" + id +
-        ", student=" + student +
-        ", bookName='" + bookName + '\'' +
-        ", createdAt=" + createdAt +
-        '}';
-  }
 }

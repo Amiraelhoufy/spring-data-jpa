@@ -1,7 +1,9 @@
-package com.agcodes.spring_data_jpa.student;
+package com.agcodes.spring_data_jpa.model;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import com.agcodes.spring_data_jpa.model.Student;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +15,15 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name="StudentIdCard")
 @Table(
     name = "student_id_card",
@@ -40,50 +50,25 @@ public class StudentIdCard {
   )
   private long Id;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-    name = "student_id",             // in this table
-    referencedColumnName = "id",     // in the student table
-      foreignKey = @ForeignKey(      // Renaming foreign key
-          name = "student_id_fk"
-      )
- )
-  private Student student;
   @Column(
       name = "card_number",
       nullable = false,
       length = 15)
   private String cardNumber;
 
+  @OneToOne
+  @JoinColumn(
+      name = "student_id",             // db column name in THIS table
+      referencedColumnName = "id",     // db column name in the Student table (foreign key points to)
+      foreignKey = @ForeignKey(        // Renaming foreign key
+          name = "student_id_fk"
+      )
+  )
+  @JsonBackReference              // 👈 Fix Jackson
+  @ToString.Exclude               // 👈 Fix Lombok
+  @EqualsAndHashCode.Exclude      // 👈 Fix Lombok
+  private Student student;
 
-  public StudentIdCard() {
-  }
-
-  public StudentIdCard(long id, String cardNumber) {
-    Id = id;
-    this.cardNumber = cardNumber;
-
-  }
-
-  public StudentIdCard(String cardNumber,Student student) {
-    this.cardNumber = cardNumber;
-    this.student = student;
-  }
-
-  @Override
-  public String toString() {
-    return "StudentIdCard{" +
-        "Id=" + Id +
-        ", student=" + student +
-        ", cardNumber='" + cardNumber + '\'' +
-        '}';
-  }
-
-  public long getId() {
-    return Id;
-  }
-
-  public String getCardNumber() {
-    return cardNumber;
+  public StudentIdCard(String cardNumber, Student student) {
   }
 }
